@@ -15,6 +15,7 @@
 - `run_id`
 - retrieved subgraph (узлы/ребра списком)
 - краткие snippets (строки логов/конфигов) с ссылками на `Artifact`
+- (опционально) индекс triage-артефактов/файлов отчета (пути вида `triage/<run>/...`)
 
 ## Выход (JSON)
 
@@ -39,6 +40,14 @@
       "reasoning": "почему это подозрительно"
     }
   ],
+  "report_addendum": {
+    "html_sections": [
+      {
+        "title": "Дополнительная аналитика (GraphRAG)",
+        "content_markdown": "Короткий блок, который можно встроить в HTML-отчет как отдельную секцию."
+      }
+    ]
+  },
   "iocs": [
     {"type": "ip|domain|file_path|hash|ssh_key_fingerprint", "value": "...", "confidence": 0.0}
   ],
@@ -52,4 +61,5 @@
 ```
 
 Требование: все текстовые поля (`executive_summary`, `reasoning`, `notes`, `recommendations`) заполняй **на русском языке**.
+Если `report_addendum` не нужен — верни пустые массивы/поля, но сохраняй ключ, чтобы пайплайн мог стабильно парсить ответ.
 

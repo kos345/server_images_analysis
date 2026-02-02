@@ -7,6 +7,7 @@
 - `state.json` (без секретов)
 - `report.json`
 - список `findings` и `iocs`
+- (опционально) `artifact_index` (список путей triage-выходов)
 
 ## Проверки
 
@@ -22,6 +23,11 @@
 
 4) **Severity sanity**
    - severity соответствует реальной критичности
+
+5) **Report coverage (по требованиям заказчика)**
+   - отчет должен покрывать обязательные темы (система/пользователи/нестандартные сервисы/cron/пакеты/web stack/docker/ssh logins/ip enrichment/активность пользователей/IoC)
+   - если в `artifact_index` доступны пути triage — проверь, что ключевые файлы присутствуют (например `system/OS.txt`, `users/passwd.txt`, `system/services.txt`, `logs/clear/success_auth.log`, `files/iocs_*.json`, `summaries/*.md`)
+   - если часть данных отсутствует, это не автоматически “ошибка”, но должно быть отражено как gap/limitation
 
 ## Выход (JSON)
 
