@@ -36,6 +36,13 @@ CLI печатает:
 - `IPINFO_TOKEN`
 - `GIGACHAT_CREDENTIALS` (или переменная, требуемая `langchain_gigachat`)
 
+Параметры “кейс/изоляция”:
+
+- `CASE_NAME` (опционально; по умолчанию вычисляется как `case_<image_file_name>` с sanitization)
+- `NEO4J_ISOLATION_MODE`: `database|container`
+  - `database`: создаем/выбираем БД `CASE_NAME` (если доступно)
+  - `container`: один кейс = один neo4j контейнер/инстанс (бесплатный режим, если multiple databases недоступны)
+
 ### 2.2 Политика хранения
 
 - секреты не пишем в `state.json`
