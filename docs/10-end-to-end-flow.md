@@ -24,32 +24,32 @@
 
 ```mermaid
 flowchart TD
-  A([Start: analyze(image)]) --> B[Orchestrator: init state/run_id]
-  B --> C[init_case: case_name = case_<image_file_name>]
-  C --> D[ingest_image: ImageProcessor\n- detect format\n- qemu-img -> raw (if needed)\n- hashes/metadata]
-  D --> E[detect_os: TriageCollector (pytsk3)\n- read /etc/os-release]
-  E -->|os != linux| Z([Stop: unsupported_os\nminimal status/report])
-  E -->|linux| F[collect_triage: TriageCollector\n- triage dir\n- artifacts via triage.yaml\n- logs/raw\n- auth_full.log\n- history_clear_*]
+  A([Start]) --> B[Orchestrator<br/>init state and run_id]
+  B --> C[init_case<br/>case_name from image file name]
+  C --> D[ingest_image<br/>ImageProcessor<br/>detect format, convert to raw if needed, hashes]
+  D --> E[detect_os<br/>TriageCollector (pytsk3)<br/>read /etc/os-release]
+  E -->|not linux| Z([Stop<br/>unsupported_os])
+  E -->|linux| F[collect_triage<br/>TriageCollector<br/>triage dir, artifacts via triage.yaml, logs/raw, auth_full.log, history_clear]
 
   F --> G{have auth logs?}
-  G -->|no| H1[triage_summaries (LLM)\nservices/cron/apt/logs/root/home/history]
-  G -->|yes| H[log_agent_auth_ssh\n- parse auth_full.log\n- success_auth.log\n- extract public IPs]
+  G -->|no| H1[triage_summaries (LLM)<br/>services, cron, apt, logs, files, history]
+  G -->|yes| H[log_agent_auth_ssh<br/>parse auth_full.log, write success_auth.log, extract public IPs]
 
   H --> I{public IPs?}
   I -->|no| H1
-  I -->|yes| J[ip_enrichment: ContextEnricher\n- ipinfo bulk\n- success_auth_IP.json\n- history_*_IP.json]
+  I -->|yes| J[ip_enrichment<br/>ContextEnricher<br/>ipinfo bulk, success_auth_IP.json, history_IP.json]
   J --> H1
 
-  H1 --> K[generate_iocs\n- iocs_full.json\n- iocs_clear.json (optional LLM)]
+  H1 --> K[generate_iocs<br/>iocs_full.json, iocs_clear.json (optional LLM)]
   K --> L{vt enabled + key?}
-  L -->|no| M[kg_upsert: Neo4j\n- normalize entities/relations\n- provenance links]
-  L -->|yes| L2[vt_lookup: ContextEnricher\n- lookup by SHA256\n- iocs_vt.json] --> M
+  L -->|no| M[kg_upsert<br/>Neo4j<br/>normalize entities and relations, provenance links]
+  L -->|yes| L2[vt_lookup<br/>ContextEnricher<br/>lookup by SHA256, iocs_vt.json] --> M
 
-  M --> N[graph_rag_analyst (LLM)\n- retrieve subgraph\n- verdict/findings/iocs\n- report_addendum]
-  N --> O[render_report\n- Jinja2 HTML\n- include required sections\n- mask secrets]
+  M --> N[graph_rag_analyst (LLM)<br/>retrieve subgraph, verdict, findings, iocs, report addendum]
+  N --> O[render_report<br/>Jinja2 HTML<br/>include required sections, mask secrets]
   O --> P{telegram enabled?}
   P -->|no| Q([Done])
-  P -->|yes| R[telegram_notify\n- send summary + files] --> Q
+  P -->|yes| R[telegram_notify<br/>send summary and files] --> Q
 ```
 
 ## 4) Что делает каждый этап (коротко)
