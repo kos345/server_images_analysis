@@ -51,3 +51,5 @@
 }
 ```
 
+Требование: все текстовые поля (`executive_summary`, `reasoning`, `notes`, `recommendations`) заполняй **на русском языке**.
+

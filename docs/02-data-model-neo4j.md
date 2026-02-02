@@ -19,6 +19,7 @@ Neo4j хранит:
 
 - **Idempotent upsert**: повторный ingestion одного и того же run не плодит дубликаты.
 - **Provenance-first**: каждое утверждение можно отследить до файла/лога/строки.
+- **Изоляция кейсов**: данные разных кейсов не смешиваются (каждый кейс хранится в **отдельной БД Neo4j**).
 - **Separation of concerns**:
   - `Run` и `Artifact` — “контейнеры доказательств”
   - domain-узлы — “сущности системы”
@@ -126,7 +127,7 @@ Neo4j хранит:
 - `User.id = run_id + ":" + username`
 - `File.id = run_id + ":" + path`
 - `Service.id = run_id + ":" + name + ":" + unit_path?`
-- `IP.id = ip` (глобальный, общий между runs)
+- `IP.id = run_id + ":" + ip` (или `ip`, если гарантирована единственность в пределах БД кейса)
 - `SSHLoginEvent.id = run_id + ":" + sha256(raw_line)` (или ts+pid+ip+user)
 
 ## 6) Индексы/ограничения (Neo4j)
