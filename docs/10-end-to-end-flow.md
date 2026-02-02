@@ -27,7 +27,7 @@ flowchart TD
   A([Start]) --> B[Orchestrator<br/>init state and run_id]
   B --> C[init_case<br/>case_name from image file name]
   C --> D[ingest_image<br/>ImageProcessor<br/>detect format, convert to raw if needed, hashes]
-  D --> E[detect_os<br/>TriageCollector (pytsk3)<br/>read /etc/os-release]
+  D --> E[detect_os<br/>TriageCollector pytsk3<br/>read os release file]
   E -->|not linux| Z([Stop<br/>unsupported_os])
   E -->|linux| F[collect_triage<br/>TriageCollector<br/>triage dir, artifacts via triage.yaml, logs/raw, auth_full.log, history_clear]
 
