@@ -8,6 +8,7 @@
 - `profile`: `mvp|extended`
 - `out_dir`: базовая директория (`./triage` по умолчанию)
 - `ipinfo_token`: секрет для API (bulk)
+- `virustotal_api_key`: ключ VT (lookup по SHA256; опционально)
 - `neo4j_uri`, `neo4j_user`, `neo4j_password`
 
 ### Выход
@@ -20,6 +21,16 @@
 - `kg/` — статистика/логи ingestion
 - `report/` — `report.md`, `report.json`
 - `logs/` — логи выполнения (audit trail)
+
+Дополнительно (как в ТЗ заказчика):
+
+- `system/OS.txt`
+- `users/passwd.txt`, `users/shadow.txt`, `users/history_{user}.txt`, `users/history_clear_{user}.txt`
+- `files/home.txt`, `files/root.txt`, `files/root_dir.txt`
+- `system/services.txt`, `system/cron.txt`, `system/apt.txt`, `system/docker.txt`
+- `logs/var.txt`, `logs/www.txt`, `logs/raw/var`, `logs/raw/www`, `logs/clear/auth_full.log`, `logs/clear/success_auth.log`, `logs/clear/success_auth_IP.json`
+- `files/iocs_full.json`, `files/iocs_clear.json`, `files/iocs_vt.json`
+- `summaries/*.md` (LLM summaries)
 
 ## 1) Ingest: форматы образов и конверсия в raw
 
@@ -59,12 +70,11 @@
 
 ### 3.1 Стратегии монтирования
 
-MVP допускает одну стратегию (выбирается конфигом):
+MVP опирается на **pytsk3** для чтения файловых систем/извлечения файлов из образа (без boot, read-only по смыслу).
 
-- **libguestfs/guestmount** (предпочтительно) — read-only mount
+Расширение (опционально):
 
-Расширение:
-
+- libguestfs/guestmount
 - nbd (`qemu-nbd --read-only`) + mount разделов
 
 ### 3.2 Требования read-only
@@ -226,12 +236,13 @@ Log Agent использует:
 
 ## 7) Проверка “нестандартных файлов” на malware (опционально в MVP)
 
-Два режима:
+Режимы (MVP):
 
-- `off` (дефолт в MVP)
-- `hash-only` (считать sha256 и сравнивать с локальными списками IoC)
+- `off`
+- `hash-only` (считать sha256/sha1/md5 и формировать IOC JSON)
+- `vt-lookup` (если есть `VIRUSTOTAL_API_KEY`): делать **lookup по SHA256** и добавлять поле `VT` в `files/iocs_vt.json` (без загрузки файлов).
 
-Интеграция с внешними AV/VT — **не в MVP** (из-за ключей/квот/этики).
+Примечание: VT шаг включается флагом и выполняется только при наличии ключа.
 
 ## 8) Контракт нормализованных данных (MVP)
 
@@ -290,4 +301,18 @@ Log Agent использует:
 - файлы, отмеченные эвристиками как подозрительные.
 
 Большие файлы (например, >N MB) — по конфигу: либо пропускать, либо считать частичный хеш (опционально), но в MVP можно пропускать.
+
+## 10) LLM summaries (как в ТЗ)
+
+В MVP допускаются LLM-вызовы (GigaChat) для формирования markdown-summary файлов:
+
+- `summaries/services_summary.md` из `system/services.txt` (prompt: `system_services`)
+- `summaries/cron_summary.md` из `system/cron.txt` (prompt: `cron`)
+- `summaries/apt_summary.md` из `system/apt.txt` (prompt: `apt_summary`)
+- `summaries/log_files_summary.md` из `logs/var.txt` и `logs/www.txt` (prompt: `log_files_summary`)
+- `summaries/root_files_summary.md` из `files/root_dir.txt` (prompt: `root_files_summary`)
+- `summaries/history_{user}_summary.md` из `users/history_clear_{user}.txt` (prompt: `history_summary`)
+- `summaries/home_files_summary.md` из extracted files list (в ТЗ указан prompt `history_summary`, но в реализации лучше отдельный prompt под файлы)
+
+Требование: **логировать запросы и ответы LLM** (см. `docs/07-security-and-forensics.md`).
 

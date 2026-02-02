@@ -36,6 +36,9 @@
 - **GigaChat как основная LLM (MVP: GigaChat-2-Max)**
 - **langchain_gigachat**, **langchain**, **langgraph**
 - **GraphRAG на базе Neo4j** (Neo4j как KG + retrieval поверх графа и/или гибрид граф+вектор)
+- **Python runtime для MVP: 3.11**
+- **Artifact collection: pytsk3** (как базовый способ извлечения файлов/артефактов из образа)
+- **Шаблонизация отчета: Jinja2 (HTML)**
 
 ## 4) Границы и требования форензики (важно)
 
@@ -76,7 +79,19 @@
 7. **GraphRAG Analysis**
    - Поиск подозрительных связей/паттернов, вывод summary + IoC.
 8. **Report**
-   - Отчет **на русском языке** (MVP: Markdown + JSON), см. `docs/06-api-cli.md`.
+   - Отчет **на русском языке** (MVP: HTML + краткое Telegram-сообщение; доп.: JSON/MD), см. `docs/06-api-cli.md`.
+
+## 11) Базовый набор “инструментов” (референсная реализация)
+
+В репозитории есть готовый код `tools_src/`, который нужно использовать как основу tool-layer будущего агента:
+
+- `ImageProcessor` (проверка типа образа + конвертация в raw через `qemu-img`)
+- `TriageCollector` (pytsk3 + `triage.yaml` сбор артефактов)
+- `TriageAnalyzer` (LLM-summaries по артефактам)
+- `ContextEnricher` (ipinfo bulk, VT lookup по SHA256; предусмотрен MCP)
+- `LangChainTools` (обертка инструментов для LangChain)
+
+Спецификация привязки этих классов к узлам LangGraph — в `docs/05-tools-src-integration.md`.
 
 ## 6) Артефактные форматы (контракты)
 

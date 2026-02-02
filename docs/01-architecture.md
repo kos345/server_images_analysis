@@ -131,3 +131,13 @@ REST/queue (опционально) описаны в `docs/06-api-cli.md`.
 Список инструментов triage — в `docs/03-workflows-triage.md`.  
 Ограничения форензики — `docs/07-security-and-forensics.md`.
 
+## 6) Переиспользование готового набора инструментов `tools_src/`
+
+В репозитории присутствует код `tools_src/`, который реализует требуемые детерминированные компоненты triage (pytsk3 collector, image processing, enrichment, HTML report).  
+В рамках нашей архитектуры LangGraph:
+
+- узлы графа вызывают методы классов из `tools_src/src/...`,
+- LLM используется для summaries и аналитики (GraphRAG), но не для извлечения файлов/логов.
+
+Подробная карта соответствия классов и узлов — `docs/05-tools-src-integration.md`.
+
