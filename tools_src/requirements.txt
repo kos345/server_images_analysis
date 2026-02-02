@@ -1,0 +1,28 @@
+# Forensic Image Triage & Analysis Toolkit
+# Python 3.11+
+
+# Core dependencies
+pytsk3>=20230525
+pyyaml>=6.0
+
+# Image processing
+# Note: qemu-img must be installed separately via system package manager
+
+# HTTP requests (for Telegram, external APIs)
+requests>=2.31.0
+
+# LangChain integration (optional)
+langchain>=0.1.0
+langchain-community>=0.0.20
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Development
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+
+
